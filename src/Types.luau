@@ -6,7 +6,7 @@ export type Cleanup = () -> ()
 export type Constructor<T, B> = (object: T) -> (B, Cleanup?)
 
 export type Binder<T, B> = {
-    Has: (objecT: T) -> boolean,
+    Has: (object: T) -> boolean,
     Get: (object: T) -> B?,
 
     Add: (object: T) -> B,
