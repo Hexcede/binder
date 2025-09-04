@@ -1,0 +1,11 @@
+[package]
+name = "hexcede/binder"
+version = "0.1.0"
+authors = ["Hexcede"]
+registry = "https://github.com/UpliftGames/wally-index"
+realm = "shared"
+exclude = ["*"]
+include = ["wally.toml", "default.project.json", "src", "src/**"]
+
+[dependencies]
+Observe = "4812571/observe@0.2.6"

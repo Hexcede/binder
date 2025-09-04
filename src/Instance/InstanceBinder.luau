@@ -1,0 +1,66 @@
+--!strict
+--!optimize 2
+
+local Packages = script.Parent.Parent.Parent
+
+local Observe = require(Packages.Observe)
+
+local Types = require(script.Parent.Parent.Types)
+
+type Cleanup = Types.Cleanup
+
+type Constructor<T, B> = Types.Constructor<T, B>
+type Binder<T, B> = Types.Binder<T, B>
+type InstanceBinder<B> = Types.InstanceBinder<B>
+
+local GenericBinder = require(script.Parent.Parent.Generic.GenericBinder)
+
+local function InstanceBinder<B>(constructor: Constructor<Instance, B>): InstanceBinder<B>
+    local binder = GenericBinder(constructor)
+
+    local function Bind(tag: string): Cleanup
+        return Observe.Tagged(tag, function(instance: Instance)
+            local _binding = binder.Add(instance)
+
+            return function()
+                binder.Remove(instance)
+            end
+        end)
+    end
+
+    local function BindIn(tag: string, container: Instance): Cleanup
+        return Observe.Tagged(tag, function(instance: Instance)
+            local cleanupObserver = Observe.Property(instance, "Parent", function(parent: Instance?)
+                if not instance:IsDescendantOf(container) then
+                    binder.Remove(instance)
+
+                    return
+                end
+
+                binder.Add(instance)
+
+                return
+            end)
+
+            return function()
+                cleanupObserver()
+                binder.Remove(instance)
+            end
+        end)
+    end
+
+    local self = {
+        Has = binder.Has,
+        Get = binder.Get,
+
+        Add = binder.Add,
+        Remove = binder.Remove,
+
+        Bind = Bind,
+        BindIn = BindIn,
+    }
+
+    return self
+end
+
+return InstanceBinder
