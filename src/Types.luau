@@ -13,7 +13,7 @@ export type Binder<T, B> = {
     Remove: (object: T) -> (),
 }
 
-export type InstanceBinder<R> = Binder<Instance, R> & {
+export type InstanceBinder<B> = Binder<Instance, B> & {
     Bind: (tag: string) -> Cleanup,
     BindIn: (tag: string, container: Instance) -> Cleanup,
 }
