@@ -3,7 +3,7 @@
 
 local Types = require(script.Parent.Parent.Types)
 
-type Cleanup<T, B> = Types.Cleanup
+type Cleanup = Types.Cleanup
 
 type Constructor<T, B> = Types.Constructor<T, B>
 type Binder<T, B> = Types.Binder<T, B>
