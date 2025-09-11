@@ -15,9 +15,11 @@ type Cleanup = Types.Cleanup
 type Constructor<T, B> = Types.Constructor<T, B>
 type Binder<T, B> = Types.Binder<T, B>
 
+local WEAK_KEYS = table.freeze({ __mode = "k" })
+
 local function GenericBinder<T, B>(constructor: Constructor<T, B>): Binder<T, B>
-    local addedSignals: { [T]: Signal<B> } = setmetatable({}, { __mode = "k" }) :: any
-    local removedSignals: { [T]: Signal<B> } = setmetatable({}, { __mode = "k" }) :: any
+    local addedSignals: { [T]: Signal<B> } = setmetatable({}, WEAK_KEYS) :: any
+    local removedSignals: { [T]: Signal<B> } = setmetatable({}, WEAK_KEYS) :: any
 
     local bindings = {}
     local unbinders = {}
