@@ -3,7 +3,7 @@
 
 local Packages = script.Parent.Parent.Parent
 
-local Observe = require(script.Parent.Parent.Parent.Observe)
+local Observe = require(Packages.Observe)
 local Signal = require(Packages.Signal)
 
 local Types = require(script.Parent.Parent.Types)
