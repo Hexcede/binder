@@ -12,22 +12,39 @@ export type Cleanup = () -> ()
 export type Constructor<T, B> = (object: T) -> (B, Cleanup?)
 
 export type Binder<T, B> = {
+    --- @return Whether or not the object has a binder instantiated.
     Has: (object: T) -> boolean,
+    --- @return The intantiated binder, if any.
     Get: (object: T) -> B?,
 
+    --- Creates or retrieves the binder for the object and retains a reference to it.
+    --- Once no more references to the binder exist it will be garbage collected.
+    --- @return A cleanup function which releases the used binder reference.
+    --- @return The instantiated binder.
     Use: (object: T) -> (Cleanup, B),
 
+    --- @return A signal that fires when the binder is added.
     GetAddedSignal: (object: T) -> Signal<B>,
+    --- @return A signal that fires when the binder is removed.
     GetRemovedSignal: (object: T) -> Signal<B>,
 
+    --- Observes the instantiated binder for the given object, if any.
+    --- @return A function that cleans up the observer.
     Observe: (object: T, callback: (binder: B) -> Cleanup?) -> Cleanup,
 
+    --- Creates (or retrieves) the binder for the given object.
+    --- @return The instantiated binder.
     Add: (object: T) -> B,
+    --- Removes the binder from the object & cleans it up.
     Remove: (object: T) -> (),
 }
 
 export type InstanceBinder<B> = Binder<Instance, B> & {
+    --- Binds to the given `CollectionService` tag and automatically instantiates & cleans up binders using `.Use`.
+    --- @return A function which unbinds the tag
     Bind: (tag: string) -> Cleanup,
+    --- Binds to the given `CollectionService` tag within the given container and automatically instantiates & cleans up binders using `.Use`.
+    --- @return A function which unbinds the tag
     BindIn: (tag: string, container: Instance) -> Cleanup,
 }
 
