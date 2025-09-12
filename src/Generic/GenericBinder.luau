@@ -53,6 +53,8 @@ local function GenericBinder<T, B>(constructor: Constructor<T, B>): Binder<T, B>
                 removedSignal:Fire(binding)
             end
 
+            refCounts[object] = nil
+
             bindings[object] = nil
             unbinders[object] = nil
         end
