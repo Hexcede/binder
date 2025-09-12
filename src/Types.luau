@@ -15,6 +15,8 @@ export type Binder<T, B> = {
     Has: (object: T) -> boolean,
     Get: (object: T) -> B?,
 
+    Use: (object: T) -> (Cleanup, B),
+
     GetAddedSignal: (object: T) -> Signal<B>,
     GetRemovedSignal: (object: T) -> Signal<B>,
 

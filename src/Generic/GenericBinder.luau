@@ -24,6 +24,8 @@ local function GenericBinder<T, B>(constructor: Constructor<T, B>): Binder<T, B>
     local bindings = {}
     local unbinders = {}
 
+    local refCounts = {}
+
     local function Has(object: T): boolean
         return not not unbinders[object]
     end
@@ -118,9 +120,48 @@ local function GenericBinder<T, B>(constructor: Constructor<T, B>): Binder<T, B>
         end)
     end
 
+    local function Use(object: T): (Cleanup, B)
+        local binder = Add(object)
+
+        -- Increment the reference count for the object
+        refCounts[object] = (refCounts[object] or 0) + 1
+
+        local isCleaned = false
+
+        local function cleanup()
+            if isCleaned then
+                return
+            end
+
+            isCleaned = true
+
+            -- Decrement the reference count for the object
+            local refCount = refCounts[object] - 1
+
+            refCounts[object] = refCount
+
+            if refCount > 0 then
+                return
+            end
+
+            -- Defer & clean up the object if there are no remaining references
+            task.defer(function()
+                if refCounts[object] > 0 then
+                    return
+                end
+
+                Remove(object)
+            end)
+        end
+
+        return cleanup, binder
+    end
+
     local self = {
         Has = Has,
         Get = Get,
+
+        Use = Use,
 
         GetAddedSignal = GetAddedSignal,
         GetRemovedSignal = GetRemovedSignal,

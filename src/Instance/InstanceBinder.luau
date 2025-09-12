@@ -53,6 +53,8 @@ local function InstanceBinder<B>(constructor: Constructor<Instance, B>): Instanc
         Has = binder.Has,
         Get = binder.Get,
 
+        Use = binder.Use,
+
         GetAddedSignal = binder.GetAddedSignal,
         GetRemovedSignal = binder.GetRemovedSignal,
 
