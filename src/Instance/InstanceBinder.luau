@@ -19,33 +19,18 @@ local function InstanceBinder<B>(constructor: Constructor<Instance, B>): Instanc
     local binder = GenericBinder(constructor)
 
     local function Bind(tag: string): Cleanup
-        return Observe.Tagged(tag, function(instance: Instance)
-            local _binding = binder.Add(instance)
-
-            return function()
-                binder.Remove(instance)
-            end
-        end)
+        return Observe.Tagged(tag, binder.Use)
     end
 
     local function BindIn(tag: string, container: Instance): Cleanup
         return Observe.Tagged(tag, function(instance: Instance)
-            local cleanupObserver = Observe.Property(instance, "Parent", function(parent: Instance?)
+            return Observe.Property(instance, "Parent", function(parent: Instance?)
                 if not instance:IsDescendantOf(container) then
-                    binder.Remove(instance)
-
                     return
                 end
 
-                binder.Add(instance)
-
-                return
+                return binder.Use(instance)
             end)
-
-            return function()
-                cleanupObserver()
-                binder.Remove(instance)
-            end
         end)
     end
 
