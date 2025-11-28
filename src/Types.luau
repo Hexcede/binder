@@ -11,17 +11,28 @@ export type Cleanup = () -> ()
 
 export type Constructor<T, B> = (object: T) -> (B, Cleanup?)
 
+export type Use<T, B> =
+    & (object: T) -> (Cleanup, B)
+    & (object: T, onFailure: Cleanup?) -> (Cleanup, B)
+
+export type Add<T, B> =
+    & (object: T) -> B
+    & (object: T, onFailure: Cleanup?) -> B
+
 export type Binder<T, B> = {
     --- @return Whether or not the object has a binder instantiated.
     Has: (object: T) -> boolean,
     --- @return The intantiated binder, if any.
     Get: (object: T) -> B?,
+    --- Waits for the binder to be added. Does not try to construct it.
+    --- @return The instantiated binder.
+    Await: (object: T) -> B,
 
     --- Creates or retrieves the binder for the object and retains a reference to it.
     --- Once no more references to the binder exist it will be garbage collected.
     --- @return A cleanup function which releases the used binder reference.
     --- @return The instantiated binder.
-    Use: (object: T) -> (Cleanup, B),
+    Use: Use<T, B>,
 
     --- @return A signal that fires when the binder is added.
     GetAddedSignal: (object: T) -> Signal<B>,
@@ -34,7 +45,7 @@ export type Binder<T, B> = {
 
     --- Creates (or retrieves) the binder for the given object.
     --- @return The instantiated binder.
-    Add: (object: T) -> B,
+    Add: Add<T, B>,
     --- Removes the binder from the object & cleans it up.
     Remove: (object: T) -> (),
 }

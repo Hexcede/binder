@@ -159,6 +159,7 @@ local function InstanceBinder<B>(constructor: Constructor<Instance, B>): Instanc
     local self = {
         Has = binder.Has,
         Get = binder.Get,
+        Await = binder.Await,
 
         Use = binder.Use,
 
