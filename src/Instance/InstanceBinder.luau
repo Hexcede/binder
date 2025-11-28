@@ -111,9 +111,11 @@ local function InstanceBinder<B>(constructor: Constructor<Instance, B>): Instanc
         updateTarget()
 
         local function cleanup()
-            for _, cleanup in cleanups do
-                cleanup()
+            if cleanupBinderObserver then
+                cleanupBinderObserver()
             end
+
+            clearCleanups()
 
             ancestryChanged:Disconnect()
         end
