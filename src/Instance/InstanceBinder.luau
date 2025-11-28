@@ -35,6 +35,10 @@ local function InstanceBinder<B>(constructor: Constructor<Instance, B>): Instanc
     end
 
     local function ObserveNearestAncestor(instance: Instance, callback: (binder: B) -> Cleanup?): Cleanup
+        local lastInstance: Instance?
+        local lastBinder: B?
+        local cleanupBinderObserver: Cleanup?
+
         local cleanups: {Cleanup} = {}
 
         local function clearCleanups()
@@ -63,17 +67,33 @@ local function InstanceBinder<B>(constructor: Constructor<Instance, B>): Instanc
 
                 -- If the current ancestor has the binder, observe it and apply the callback
                 if binder.Has(current) then
-                    table.insert(cleanups, binder.Observe(current, function(binder)
+                    -- If the instance/binder reference has not actually changed, do nothing
+                    if current == lastInstance and binder.Get(current) == lastBinder then
+                        break
+                    end
+
+                    if cleanupBinderObserver then
+                        cleanupBinderObserver()
+                    end
+
+                    lastInstance = current
+                    lastBinder = nil
+
+                    cleanupBinderObserver = binder.Observe(current, function(binder)
+                        lastBinder = binder
+
                         local cleanup = callback(binder)
 
                         return function()
+                            lastBinder = nil
+
                             if cleanup then
                                 cleanup()
                             end
 
                             updateTarget()
                         end
-                    end))
+                    end)
 
                     break
                 end
