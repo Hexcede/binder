@@ -34,6 +34,73 @@ local function InstanceBinder<B>(constructor: Constructor<Instance, B>): Instanc
         end)
     end
 
+    local function ObserveNearestAncestor(instance: Instance, callback: (binder: B) -> Cleanup?): Cleanup
+        local cleanups: {Cleanup} = {}
+
+        local function clearCleanups()
+            local oldCleanups = table.clone(cleanups)
+
+            table.clear(cleanups)
+
+            for _, cleanup in oldCleanups do
+                cleanup()
+            end
+        end
+
+        local function updateTarget()
+            clearCleanups()
+
+            local current = instance
+
+            repeat
+                local parent = current.Parent
+
+                if not parent then
+                    return
+                end
+
+                current = parent
+
+                -- If the current ancestor has the binder, observe it and apply the callback
+                if binder.Has(current) then
+                    table.insert(cleanups, binder.Observe(current, function(binder)
+                        local cleanup = callback(binder)
+
+                        return function()
+                            if cleanup then
+                                cleanup()
+                            end
+
+                            updateTarget()
+                        end
+                    end))
+
+                    break
+                end
+
+                local addedConnection = binder.GetAddedSignal(current):Once(updateTarget)
+
+                table.insert(cleanups, function()
+                    addedConnection:Disconnect()
+                end)
+            until not current
+        end
+
+        local ancestryChanged = instance.AncestryChanged:Connect(updateTarget)
+
+        updateTarget()
+
+        local function cleanup()
+            for _, cleanup in cleanups do
+                cleanup()
+            end
+
+            ancestryChanged:Disconnect()
+        end
+
+        return cleanup
+    end
+
     local self = {
         Has = binder.Has,
         Get = binder.Get,
@@ -44,6 +111,7 @@ local function InstanceBinder<B>(constructor: Constructor<Instance, B>): Instanc
         GetRemovedSignal = binder.GetRemovedSignal,
 
         Observe = binder.Observe,
+        ObserveNearestAncestor = ObserveNearestAncestor,
 
         Add = binder.Add,
         Remove = binder.Remove,

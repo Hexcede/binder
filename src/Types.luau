@@ -46,6 +46,10 @@ export type InstanceBinder<B> = Binder<Instance, B> & {
     --- Binds to the given `CollectionService` tag within the given container and automatically instantiates & cleans up binders using `.Use`.
     --- @return A function which unbinds the tag
     BindIn: (tag: string, container: Instance) -> Cleanup,
+
+    --- Observes an instantiated binder on the nearest ancestor for the given object, excluding itself.
+    --- @return A function that cleans up the observer.
+    ObserveNearestAncestor: (instance: Instance, callback: (binder: B) -> Cleanup?) -> Cleanup,
 }
 
 return nil
