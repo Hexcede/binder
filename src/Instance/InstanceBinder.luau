@@ -91,7 +91,7 @@ local function InstanceBinder<B>(constructor: Constructor<Instance, B>): Instanc
                                 cleanup()
                             end
 
-                            updateTarget()
+                            task.defer(updateTarget)
                         end
                     end)
 
