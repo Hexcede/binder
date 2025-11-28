@@ -34,6 +34,34 @@ local function GenericBinder<T, B>(constructor: Constructor<T, B>): Binder<T, B>
         return bindings[object]
     end
 
+    local function GetAddedSignal(object: T): Signal<B>
+        local addedSignal = addedSignals[object]
+
+        if addedSignal then
+            return addedSignal
+        end
+
+        local signal = Signal.new()
+
+        addedSignals[object] = signal
+
+        return signal
+    end
+
+    local function GetRemovedSignal(object: T): Signal<B>
+        local removedSignal = removedSignals[object]
+
+        if removedSignal then
+            return removedSignal
+        end
+
+        local signal = Signal.new()
+
+        removedSignals[object] = signal
+
+        return signal
+    end
+
     local function Add(object: T): B
         if Has(object) then
             return Get(object) :: B
@@ -79,34 +107,6 @@ local function GenericBinder<T, B>(constructor: Constructor<T, B>): Binder<T, B>
         end
 
         unbind()
-    end
-
-    local function GetAddedSignal(object: T): Signal<B>
-        local addedSignal = addedSignals[object]
-
-        if addedSignal then
-            return addedSignal
-        end
-
-        local signal = Signal.new()
-
-        addedSignals[object] = signal
-
-        return signal
-    end
-
-    local function GetRemovedSignal(object: T): Signal<B>
-        local removedSignal = removedSignals[object]
-
-        if removedSignal then
-            return removedSignal
-        end
-
-        local signal = Signal.new()
-
-        removedSignals[object] = signal
-
-        return signal
     end
 
     local function ObserveBinder(object: T, callback: (binder: B) -> Cleanup?): Cleanup
