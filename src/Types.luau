@@ -49,10 +49,10 @@ export type InstanceBinder<B> = Binder<Instance, B> & {
 
     --- Searches for the first ancestor that has the binder, excluding the given instance.
     --- @return The binding, if any
-    FindNearestAncestor: (instance: Instance) -> B?,
-    --- Observes an instantiated binder on the nearest ancestor for the given object, excluding itself.
+    FindFirstAncestor: (instance: Instance) -> B?,
+    --- Observes an instantiated binder on the first ancestor for the given object, excluding itself.
     --- @return A function that cleans up the observer.
-    ObserveNearestAncestor: (instance: Instance, callback: (binder: B) -> Cleanup?) -> Cleanup,
+    ObserveFirstAncestor: (instance: Instance, callback: (binder: B) -> Cleanup?) -> Cleanup,
 }
 
 return nil

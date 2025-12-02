@@ -34,7 +34,7 @@ local function InstanceBinder<B>(constructor: Constructor<Instance, B>): Instanc
         end)
     end
 
-    local function FindNearestAncestor(instance: Instance): B?
+    local function FindFirstAncestor(instance: Instance): B?
         local current = instance
 
         repeat
@@ -55,7 +55,7 @@ local function InstanceBinder<B>(constructor: Constructor<Instance, B>): Instanc
         return nil
     end
 
-    local function ObserveNearestAncestor(instance: Instance, callback: (binder: B) -> Cleanup?): Cleanup
+    local function ObserveFirstAncestor(instance: Instance, callback: (binder: B) -> Cleanup?): Cleanup
         local lastInstance: Instance?
         local lastBinder: B?
         local cleanupBinderObserver: Cleanup?
@@ -167,8 +167,8 @@ local function InstanceBinder<B>(constructor: Constructor<Instance, B>): Instanc
 
         Observe = binder.Observe,
 
-        FindNearestAncestor = FindNearestAncestor,
-        ObserveNearestAncestor = ObserveNearestAncestor,
+        FindFirstAncestor = FindFirstAncestor,
+        ObserveFirstAncestor = ObserveFirstAncestor,
 
         Add = binder.Add,
         Remove = binder.Remove,
