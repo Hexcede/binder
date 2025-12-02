@@ -34,6 +34,27 @@ local function InstanceBinder<B>(constructor: Constructor<Instance, B>): Instanc
         end)
     end
 
+    local function FindNearestAncestor(instance: Instance): B?
+        local current = instance
+
+        repeat
+            local parent = current.Parent
+
+            if not parent then
+                break
+            end
+
+            current = parent
+
+            -- If the current ancestor has the binder, return it
+            if binder.Has(current) then
+                return binder.Get(current)
+            end
+        until not current
+
+        return nil
+    end
+
     local function ObserveNearestAncestor(instance: Instance, callback: (binder: B) -> Cleanup?): Cleanup
         local lastInstance: Instance?
         local lastBinder: B?
@@ -145,6 +166,8 @@ local function InstanceBinder<B>(constructor: Constructor<Instance, B>): Instanc
         GetRemovedSignal = binder.GetRemovedSignal,
 
         Observe = binder.Observe,
+
+        FindNearestAncestor = FindNearestAncestor,
         ObserveNearestAncestor = ObserveNearestAncestor,
 
         Add = binder.Add,

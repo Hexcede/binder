@@ -47,6 +47,9 @@ export type InstanceBinder<B> = Binder<Instance, B> & {
     --- @return A function which unbinds the tag
     BindIn: (tag: string, container: Instance) -> Cleanup,
 
+    --- Searches for the first ancestor that has the binder, excluding the given instance.
+    --- @return The binding, if any
+    FindNearestAncestor: (instance: Instance) -> B?,
     --- Observes an instantiated binder on the nearest ancestor for the given object, excluding itself.
     --- @return A function that cleans up the observer.
     ObserveNearestAncestor: (instance: Instance, callback: (binder: B) -> Cleanup?) -> Cleanup,
