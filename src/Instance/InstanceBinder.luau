@@ -39,6 +39,8 @@ local function InstanceBinder<B>(constructor: Constructor<Instance, B>): Instanc
         local lastBinder: B?
         local cleanupBinderObserver: Cleanup?
 
+        local isCleaned = false
+
         local cleanups: {Cleanup} = {}
 
         local function clearCleanups()
@@ -52,6 +54,10 @@ local function InstanceBinder<B>(constructor: Constructor<Instance, B>): Instanc
         end
 
         local function updateTarget()
+            if isCleaned then
+                return
+            end
+
             clearCleanups()
 
             local current = instance
@@ -91,6 +97,10 @@ local function InstanceBinder<B>(constructor: Constructor<Instance, B>): Instanc
                                 cleanup()
                             end
 
+                            if isCleaned then
+                                return
+                            end
+
                             task.defer(updateTarget)
                         end
                     end)
@@ -111,6 +121,8 @@ local function InstanceBinder<B>(constructor: Constructor<Instance, B>): Instanc
         updateTarget()
 
         local function cleanup()
+            isCleaned = true
+
             if cleanupBinderObserver then
                 cleanupBinderObserver()
             end
